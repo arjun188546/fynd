@@ -5,6 +5,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../config/api';
 
 export const UserRegister = () => {
     const [name, setName] = useState('');

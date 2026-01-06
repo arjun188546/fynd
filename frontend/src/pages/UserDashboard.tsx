@@ -4,6 +4,7 @@ import { Star, Send, CheckCircle, AlertCircle, User, Mail } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../config/api';
 
 export const UserDashboard = () => {
   const [name, setName] = useState<string>('');
@@ -223,8 +224,8 @@ export const UserDashboard = () => {
                       <Star
                         size={52}
                         className={`transition-all duration-200 ${star <= (hoverRating || rating)
-                            ? 'fill-black text-black drop-shadow-lg'
-                            : 'text-gray-300'
+                          ? 'fill-black text-black drop-shadow-lg'
+                          : 'text-gray-300'
                           }`}
                       />
                     </motion.button>
