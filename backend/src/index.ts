@@ -448,7 +448,6 @@ app.post('/api/auth/admin/login', (req: Request, res: Response, next: NextFuncti
     }
     if (!user) {
       console.warn('⚠️  [AUTH] Login failed:', info?.message || 'Invalid credentials');
-      console.log('📝 Available users:', users.map(u => ({ email: u.email, role: u.role })));
       return res.status(401).json({ error: info?.message || 'Invalid credentials' });
     }
 
