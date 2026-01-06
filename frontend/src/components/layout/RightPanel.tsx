@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, Trash2, Sparkles, X, MessageCircle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../../config/api';
 
 interface Message {
   id: string;
@@ -50,7 +51,7 @@ export const RightPanel = () => {
     try {
       // Call backend RAG chatbot API
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/admin/chat', {
+      const response = await fetch(API_ENDPOINTS.ADMIN_CHAT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -188,110 +189,110 @@ export const RightPanel = () => {
               </div>
             </div>
 
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50">
-        <AnimatePresence>
-          {messages.map((message) => (
-            <motion.div
-              key={message.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                  ? 'bg-black text-white'
-                  : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
-                  }`}
-              >
-                {message.role === 'assistant' && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      <img
-                        src="/ai-assistant-icon.png"
-                        alt="AI"
-                        className="w-full h-full object-contain"
-                      />
+            {/* Messages Container */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50">
+              <AnimatePresence>
+                {messages.map((message) => (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user'
+                        ? 'bg-black text-white'
+                        : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
+                        }`}
+                    >
+                      {message.role === 'assistant' && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-5 h-5 flex items-center justify-center">
+                            <img
+                              src="/ai-assistant-icon.png"
+                              alt="AI"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <span className="text-xs font-semibold text-gray-600">Fynd AI</span>
+                        </div>
+                      )}
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                        {message.content}
+                      </p>
+                      <span
+                        className={`text-xs mt-2 block ${message.role === 'user' ? 'text-gray-300' : 'text-gray-400'
+                          }`}
+                      >
+                        {formatTime(message.timestamp)}
+                      </span>
                     </div>
-                    <span className="text-xs font-semibold text-gray-600">Fynd AI</span>
-                  </div>
-                )}
-                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  {message.content}
-                </p>
-                <span
-                  className={`text-xs mt-2 block ${message.role === 'user' ? 'text-gray-300' : 'text-gray-400'
-                    }`}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* Loading Indicator */}
+              {isLoading && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-start"
                 >
-                  {formatTime(message.timestamp)}
-                </span>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                  <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="animate-spin text-purple-500" size={16} />
+                      <span className="text-sm text-gray-600">Thinking...</span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
-        {/* Loading Indicator */}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-start"
-          >
-            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-              <div className="flex items-center gap-2">
-                <Loader2 className="animate-spin text-purple-500" size={16} />
-                <span className="text-sm text-gray-600">Thinking...</span>
-              </div>
+              <div ref={messagesEndRef} />
             </div>
-          </motion.div>
-        )}
 
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input Area */}
-      <div className="p-4 border-t border-gray-200 bg-white">
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <textarea
-              ref={inputRef}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
-              disabled={isLoading}
-              rows={1}
-              className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-200 rounded-xl 
+            {/* Input Area */}
+            <div className="p-4 border-t border-gray-200 bg-white">
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <textarea
+                    ref={inputRef}
+                    value={inputMessage}
+                    onChange={(e) => setInputMessage(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Ask me anything..."
+                    disabled={isLoading}
+                    rows={1}
+                    className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-200 rounded-xl 
                        focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent
                        resize-none text-sm placeholder-gray-400 disabled:opacity-50 
                        disabled:cursor-not-allowed transition-all"
-              style={{
-                minHeight: '44px',
-                maxHeight: '120px',
-              }}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = '44px';
-                target.style.height = Math.min(target.scrollHeight, 120) + 'px';
-              }}
-            />
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black text-white 
+                    style={{
+                      minHeight: '44px',
+                      maxHeight: '120px',
+                    }}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = '44px';
+                      target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+                    }}
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!inputMessage.trim() || isLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black text-white 
                        rounded-lg hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed 
                        transition-all disabled:hover:bg-black"
-            >
-              <Send size={16} />
-            </button>
-          </div>
-        </div>
-        <p className="text-xs text-gray-400 mt-2 text-center">
-          Press Enter to send, Shift+Enter for new line
-        </p>
-      </div>
+                  >
+                    <Send size={16} />
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                Press Enter to send, Shift+Enter for new line
+              </p>
+            </div>
 
             {/* Custom Scrollbar Styles */}
             <style>{`
