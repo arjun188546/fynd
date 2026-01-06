@@ -5,25 +5,26 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../config/api';
 
 export const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
 
     console.log('\n🔐 [FRONTEND] Admin login attempt');
     console.log('📧 Email:', email);
     console.log('⏰ Timestamp:', new Date().toISOString());
 
     try {
-      console.log('📤 [FRONTEND] Sending login request to /api/auth/admin/login');
+      console.log('📤 [FRONTEND] Sending login request to', API_ENDPOINTS.ADMIN_LOGIN);
 
-      const response = await fetch('/api/auth/admin/login', {
+      const response = await fetch(API_ENDPOINTS.ADMIN_LOGIN, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
