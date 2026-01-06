@@ -8,17 +8,16 @@ import {
   Users,
   MessageSquare,
   Calendar,
-  LogOut,
-  Shield,
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 interface FeedbackSubmission {
   id: string;
+  name?: string;
+  email?: string;
   rating: number;
   review: string;
   aiSummary: string;
@@ -28,18 +27,10 @@ interface FeedbackSubmission {
 }
 
 export const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [submissions, setSubmissions] = useState<FeedbackSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filterRating, setFilterRating] = useState<number | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [adminEmail, setAdminEmail] = useState<string>('');
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    toast.success('Logged out successfully');
-    navigate('/admin/login');
-  };
 
   const fetchSubmissions = async () => {
     try {
@@ -63,27 +54,6 @@ export const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    const fetchAdminInfo = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const user = await response.json();
-          setAdminEmail(user.email);
-        }
-      } catch (error) {
-        console.error('Failed to fetch admin info:', error);
-      }
-    };
-
-    fetchAdminInfo();
     fetchSubmissions();
   }, []);
 
@@ -122,33 +92,6 @@ export const AdminDashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Admin Info Bar */}
-        {adminEmail && (
-          <motion.div
-            className="mb-4 bg-white rounded-xl p-4 shadow-sm flex items-center justify-between"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center">
-                <Shield className="text-white" size={20} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Admin Access</p>
-                <p className="font-semibold text-black">{adminEmail}</p>
-              </div>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <LogOut size={16} />
-              Logout
-            </Button>
-          </motion.div>
-        )}
-
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
@@ -376,7 +319,7 @@ export const AdminDashboard = () => {
                 <Card className="p-8 hover-lift bg-white border-0 shadow-fynd">
                   {/* Header */}
                   <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 flex-wrap">
                       <div className="px-4 py-2 bg-black rounded-xl flex items-center gap-2 text-white font-bold text-lg shadow-lg">
                         {submission.rating}
                         <Star
@@ -384,6 +327,20 @@ export const AdminDashboard = () => {
                           className="text-white fill-white"
                         />
                       </div>
+                      {(submission.name || submission.email) && (
+                        <div className="flex items-center gap-2">
+                          {submission.name && (
+                            <Badge className="bg-gray-100 text-black border border-gray-300 px-3 py-1 text-sm font-semibold">
+                              👤 {submission.name}
+                            </Badge>
+                          )}
+                          {submission.email && (
+                            <Badge className="bg-gray-100 text-black border border-gray-300 px-3 py-1 text-sm font-semibold">
+                              ✉️ {submission.email}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 text-gray-500 text-sm">
                         <Calendar size={18} />
                         <span className="font-medium">

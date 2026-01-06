@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Sparkles, Loader2, Trash2 } from 'lucide-react';
+import { Send, Loader2, Trash2, Sparkles, X, MessageCircle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 
@@ -11,11 +11,12 @@ interface Message {
 }
 
 export const RightPanel = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m your AI assistant. I can help you analyze feedback, make decisions, and provide insights. How can I assist you today?',
+      content: 'Hello! I\'m your AI Feedback Analyst powered by Gemini 2.0 Flash. I can analyze all customer feedback, identify trends, and provide actionable strategies to improve your business.\n\nTry asking:\n• "What are customers complaining about?"\n• "How can we improve satisfaction?"\n• "Show me rating trends"\n• "What should we prioritize?"',
       timestamp: new Date()
     }
   ]);
@@ -47,21 +48,46 @@ export const RightPanel = () => {
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call to backend
-      // For now, simulate AI response
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call backend RAG chatbot API
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3001/api/admin/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: userMessage.content
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
+      const data = await response.json();
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `I received your message: "${userMessage.content}". This is a placeholder response. The backend integration for Gemini API will process your request and provide intelligent insights based on feedback data.`,
+        content: data.response,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      toast.success('AI insights generated!');
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message. Please try again.');
+
+      // Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while processing your request. Please make sure you\'re logged in as an admin and try again.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
@@ -80,7 +106,7 @@ export const RightPanel = () => {
       {
         id: '1',
         role: 'assistant',
-        content: 'Chat cleared. How can I help you?',
+        content: 'Chat cleared. Ready to analyze your feedback data! What would you like to know?',
         timestamp: new Date()
       }
     ]);
@@ -95,31 +121,72 @@ export const RightPanel = () => {
   };
 
   return (
-    <motion.aside
-      className="w-80 h-screen bg-white border-l border-gray-200 flex flex-col"
-      initial={{ x: 320 }}
-      animate={{ x: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-    >
-      {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-black rounded-lg">
-              <Sparkles className="text-white" size={20} />
-            </div>
-            <h2 className="text-lg font-bold text-black">AI Assistant</h2>
-          </div>
-          <button
-            onClick={clearChat}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Clear chat"
+    <>
+      {/* Toggle Button - Floating when closed */}
+      {!isOpen && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0 }}
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 z-50 p-4 bg-black text-white rounded-full shadow-2xl hover:bg-gray-800 transition-all hover:scale-110"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <MessageCircle size={24} />
+        </motion.button>
+      )}
+
+      {/* Backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar Panel */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.aside
+            initial={{ x: 320 }}
+            animate={{ x: 0 }}
+            exit={{ x: 320 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="fixed right-0 top-0 w-80 h-screen bg-white border-l border-gray-200 flex flex-col shadow-2xl z-50"
           >
-            <Trash2 size={18} className="text-gray-600" />
-          </button>
-        </div>
-        <p className="text-gray-500 text-xs">Powered by Fynd AI · Ask anything</p>
-      </div>
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-black rounded-lg">
+                    <Sparkles className="text-white" size={18} />
+                  </div>
+                  <h2 className="text-lg font-bold text-black">Ask Fynd AI</h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={clearChat}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Clear chat"
+                  >
+                    <Trash2 size={18} className="text-gray-600" />
+                  </button>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Close"
+                  >
+                    <X size={20} className="text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
 
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-gray-50">
@@ -141,8 +208,12 @@ export const RightPanel = () => {
               >
                 {message.role === 'assistant' && (
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                      <Sparkles size={14} className="text-white" />
+                    <div className="w-5 h-5 flex items-center justify-center">
+                      <img
+                        src="/ai-assistant-icon.png"
+                        alt="AI"
+                        className="w-full h-full object-contain"
+                      />
                     </div>
                     <span className="text-xs font-semibold text-gray-600">Fynd AI</span>
                   </div>
@@ -222,22 +293,25 @@ export const RightPanel = () => {
         </p>
       </div>
 
-      {/* Custom Scrollbar Styles */}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `}</style>
-    </motion.aside>
+            {/* Custom Scrollbar Styles */}
+            <style>{`
+              .custom-scrollbar::-webkit-scrollbar {
+                width: 6px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-track {
+                background: #f1f1f1;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 3px;
+              }
+              .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                background: #555;
+              }
+            `}</style>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </>
   );
 };

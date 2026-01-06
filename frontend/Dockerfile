@@ -1,20 +1,35 @@
-# Use an official Node.js runtime as a parent image
-FROM node:20-slim
+# Frontend Dockerfile
+FROM node:18-alpine AS builder
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (or yarn.lock)
+# Copy package files
 COPY package*.json ./
 
-# Install any needed packages
-RUN npm install
+# Install dependencies
+RUN npm ci
 
-# Copy the rest of the application's code
+# Copy source code
 COPY . .
 
-# Make port 5173 available to the world outside this container
-EXPOSE 5173
+# Build for production
+RUN npm run build
 
-# Run the app when the container launches
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Production stage with nginx
+FROM nginx:alpine
+
+# Copy built files
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Expose port
+EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

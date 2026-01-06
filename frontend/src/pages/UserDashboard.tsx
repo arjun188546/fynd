@@ -1,52 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Send, CheckCircle, AlertCircle, LogOut, User } from 'lucide-react';
+import { Star, Send, CheckCircle, AlertCircle, User, Mail } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 export const UserDashboard = () => {
-  const navigate = useNavigate();
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [review, setReview] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiResponse, setAiResponse] = useState<string>('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [userName, setUserName] = useState<string>('');
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      try {
-        const response = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const user = await response.json();
-          setUserName(user.name || user.email);
-        }
-      } catch (error) {
-        console.error('Failed to fetch user info:', error);
-      }
-    };
-
-    fetchUserInfo();
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    toast.success('Logged out successfully');
-    navigate('/login');
-  };
 
   const handleSubmit = async () => {
+    if (!name.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    if (!email.trim() || !email.includes('@')) {
+      toast.error('Please enter a valid email');
+      return;
+    }
+
     if (rating === 0) {
       toast.error('Please select a rating');
       return;
@@ -62,14 +41,14 @@ export const UserDashboard = () => {
     setAiResponse('');
 
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch('/api/feedback/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
           rating,
           review: review.trim(),
         }),
@@ -85,6 +64,8 @@ export const UserDashboard = () => {
       
       // Reset form after 5 seconds
       setTimeout(() => {
+        setName('');
+        setEmail('');
         setRating(0);
         setReview('');
         setShowSuccess(false);
@@ -108,33 +89,6 @@ export const UserDashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* User Info Bar */}
-        {userName && (
-          <motion.div
-            className="mb-4 bg-white rounded-xl p-4 shadow-sm flex items-center justify-between"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                <User className="text-gray-700" size={20} />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Logged in as</p>
-                <p className="font-semibold text-black">{userName}</p>
-              </div>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <LogOut size={16} />
-              Logout
-            </Button>
-          </motion.div>
-        )}
-
         {/* Header */}
         <div className="mb-8 text-center">
           <motion.div 
@@ -193,6 +147,8 @@ export const UserDashboard = () => {
               </p>
               <Button
                 onClick={() => {
+                  setName('');
+                  setEmail('');
                   setShowSuccess(false);
                   setRating(0);
                   setReview('');
@@ -205,6 +161,49 @@ export const UserDashboard = () => {
             </motion.div>
           ) : (
             <>
+              {/* Name and Email Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Name Field */}
+                <div>
+                  <label className="block text-black font-bold mb-3 text-lg">
+                    Your Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                      <User size={20} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Email Field */}
+                <div>
+                  <label className="block text-black font-bold mb-3 text-lg">
+                    Your Email
+                  </label>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                      <Mail size={20} className="text-gray-400" />
+                    </div>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all"
+                      placeholder="john@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Rating Section */}
               <div className="mb-8">
                 <label className="block text-black font-bold mb-6 text-lg">
@@ -277,7 +276,7 @@ export const UserDashboard = () => {
               <div className="flex justify-center">
                 <Button
                   onClick={handleSubmit}
-                  disabled={isSubmitting || rating === 0 || !review.trim()}
+                  disabled={isSubmitting || !name.trim() || !email.trim() || rating === 0 || !review.trim()}
                   className="px-10 py-4 text-lg flex items-center gap-3 bg-black hover:bg-gray-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (

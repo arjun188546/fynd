@@ -1,44 +1,28 @@
 import { motion } from 'framer-motion';
-import { Search, Bell, Settings } from 'lucide-react';
-import { Input } from '../ui/Input';
+import { Shield } from 'lucide-react';
 
 export const Topbar = () => {
   return (
     <motion.header
-      className="h-16 bg-bg-secondary border-b border-fg-muted px-6 flex items-center justify-between"
+      className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between shadow-sm"
       initial={{ y: -64 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
     >
-      {/* Search */}
-      <div className="flex-1 max-w-xl">
-        <Input
-          placeholder="Search assets, transactions..."
-          icon={<Search size={18} />}
-          className="bg-bg-tertiary border-transparent"
-        />
+      {/* Admin Panel Title */}
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-black rounded-lg">
+          <Shield className="text-white" size={20} />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-black">Admin Panel</h1>
+          <p className="text-xs text-gray-500">Feedback Management System</p>
+        </div>
       </div>
 
-      {/* Right Actions */}
+      {/* Right side - can add actions later */}
       <div className="flex items-center gap-4">
-        {/* Notifications */}
-        <motion.button
-          className="relative p-2 rounded-lg hover:bg-bg-tertiary transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Bell size={20} className="text-fg-secondary" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-accent-error rounded-full" />
-        </motion.button>
-
-        {/* Settings */}
-        <motion.button
-          className="p-2 rounded-lg hover:bg-bg-tertiary transition-colors"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Settings size={20} className="text-fg-secondary" />
-        </motion.button>
+        {/* Future: Add admin actions here */}
       </div>
     </motion.header>
   );

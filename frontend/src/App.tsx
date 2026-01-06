@@ -4,8 +4,6 @@ import { Toaster } from 'react-hot-toast';
 import { Layout } from './components/layout/Layout';
 import { UserDashboard } from './pages/UserDashboard';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { UserLogin } from './pages/UserLogin';
-import { UserRegister } from './pages/UserRegister';
 import { AdminLogin } from './pages/AdminLogin';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
@@ -23,19 +21,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<UserLogin />} />
-          <Route path="/register" element={<UserRegister />} />
+          {/* Public Feedback Form */}
+          <Route path="/" element={<UserDashboard />} />
+
+          {/* Admin Login */}
           <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Protected Routes */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <UserDashboard />
-            </ProtectedRoute>
-          } />
-
-          {/* Admin Routes with Layout (Sidebar + Topbar) */}
+          {/* Admin Dashboard with Layout (Sidebar + Topbar) */}
           <Route path="/admin" element={
             <ProtectedRoute requireAdmin={true}>
               <Layout>
