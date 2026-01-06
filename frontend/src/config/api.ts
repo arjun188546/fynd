@@ -1,5 +1,20 @@
-// API Configuration
-const API_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:3001';
+// API Configuration with runtime detection
+const getApiUrl = () => {
+    // Check if we're in production (deployed on Render)
+    if (window.location.hostname.includes('render.com') ||
+        window.location.hostname.includes('onrender.com')) {
+        // Production: Use the backend service URL
+        return 'https://fyndfeed.onrender.com';
+    }
+
+    // Development: Use localhost
+    return 'http://localhost:3001';
+};
+
+const API_URL = getApiUrl();
+
+console.log('🌐 [API CONFIG] Environment:', window.location.hostname);
+console.log('🔗 [API CONFIG] Backend URL:', API_URL);
 
 export const API_ENDPOINTS = {
     // Auth
