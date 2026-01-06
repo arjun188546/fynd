@@ -30,7 +30,7 @@ export const UserDashboard = () => {
       toast.error('Please select a rating');
       return;
     }
-    
+
     if (!review.trim()) {
       toast.error('Please write a review');
       return;
@@ -41,7 +41,7 @@ export const UserDashboard = () => {
     setAiResponse('');
 
     try {
-      const response = await fetch('/api/feedback/submit', {
+      const response = await fetch(API_ENDPOINTS.SUBMIT_FEEDBACK, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export const UserDashboard = () => {
       const data = await response.json();
       setAiResponse(data.aiResponse || 'Thank you for your feedback!');
       setShowSuccess(true);
-      
+
       // Reset form after 5 seconds
       setTimeout(() => {
         setName('');
@@ -71,7 +71,7 @@ export const UserDashboard = () => {
         setShowSuccess(false);
         setAiResponse('');
       }, 5000);
-      
+
       toast.success('Review submitted successfully!');
     } catch (error) {
       console.error('Submission error:', error);
@@ -91,7 +91,7 @@ export const UserDashboard = () => {
       >
         {/* Header */}
         <div className="mb-8 text-center">
-          <motion.div 
+          <motion.div
             className="flex items-center justify-center gap-3 mb-4"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -127,7 +127,7 @@ export const UserDashboard = () => {
                 Thank You!
               </h2>
               {aiResponse && (
-                <motion.div 
+                <motion.div
                   className="glass rounded-xl p-6 mb-6 border border-gray-300"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -222,17 +222,16 @@ export const UserDashboard = () => {
                     >
                       <Star
                         size={52}
-                        className={`transition-all duration-200 ${
-                          star <= (hoverRating || rating)
+                        className={`transition-all duration-200 ${star <= (hoverRating || rating)
                             ? 'fill-black text-black drop-shadow-lg'
                             : 'text-gray-300'
-                        }`}
+                          }`}
                       />
                     </motion.button>
                   ))}
                 </div>
                 {rating > 0 && (
-                  <motion.p 
+                  <motion.p
                     className="text-center text-gray-600 mt-3 font-semibold text-lg"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}

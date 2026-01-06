@@ -24,7 +24,7 @@ export const UserRegister = () => {
         try {
             console.log('📤 [FRONTEND] Sending registration request to /api/auth/register');
 
-            const response = await fetch('/api/auth/register', {
+            const response = await fetch(API_ENDPOINTS.REGISTER, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

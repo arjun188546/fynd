@@ -35,7 +35,7 @@ export const AdminDashboard = () => {
   const fetchSubmissions = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/feedback/admin/submissions', {
+      const response = await fetch(API_ENDPOINTS.GET_SUBMISSIONS, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -114,8 +114,8 @@ export const AdminDashboard = () => {
               <button
                 onClick={() => setAutoRefresh(!autoRefresh)}
                 className={`flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition-all ${autoRefresh
-                    ? 'bg-black text-white shadow-lg'
-                    : 'bg-white text-black border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+                  ? 'bg-black text-white shadow-lg'
+                  : 'bg-white text-black border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
                   }`}
               >
                 <RefreshCw
@@ -258,8 +258,8 @@ export const AdminDashboard = () => {
                 <button
                   onClick={() => setFilterRating(null)}
                   className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${filterRating === null
-                      ? 'bg-black text-white shadow-lg'
-                      : 'bg-gray-100 text-black hover:bg-gray-200'
+                    ? 'bg-black text-white shadow-lg'
+                    : 'bg-gray-100 text-black hover:bg-gray-200'
                     }`}
                 >
                   All
@@ -269,8 +269,8 @@ export const AdminDashboard = () => {
                     key={rating}
                     onClick={() => setFilterRating(rating)}
                     className={`px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all ${filterRating === rating
-                        ? 'bg-black text-white shadow-lg'
-                        : 'bg-gray-100 text-black hover:bg-gray-200'
+                      ? 'bg-black text-white shadow-lg'
+                      : 'bg-gray-100 text-black hover:bg-gray-200'
                       }`}
                   >
                     {rating}
