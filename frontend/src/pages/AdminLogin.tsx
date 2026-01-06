@@ -61,7 +61,7 @@ export const AdminLogin = () => {
       console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
       toast.error('Failed to login. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -133,10 +133,10 @@ export const AdminLogin = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
               className="w-full bg-black hover:bg-gray-800 text-white font-bold py-4 rounded-xl"
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
 
