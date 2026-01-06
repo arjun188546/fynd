@@ -25,6 +25,7 @@ const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 // Middleware
 const allowedOrigins = [
   'http://localhost:3000',
+  'https://fyndfb.onrender.com',
   'https://fyndfb-frontend.onrender.com',
   process.env.FRONTEND_URL
 ].filter(Boolean);
