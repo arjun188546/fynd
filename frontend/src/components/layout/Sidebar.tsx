@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../../config/api';
 
 export const Sidebar = () => {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export const Sidebar = () => {
       if (!token) return;
 
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch(API_ENDPOINTS.ME, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

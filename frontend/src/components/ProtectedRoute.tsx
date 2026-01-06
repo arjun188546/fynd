@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from '../config/api';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,14 +15,14 @@ export const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRout
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         setIsAuthenticated(false);
         return;
       }
 
       try {
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch(API_ENDPOINTS.ME, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
