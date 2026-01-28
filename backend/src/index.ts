@@ -20,7 +20,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // Middleware
 const allowedOrigins = [
@@ -806,6 +806,14 @@ app.post('/api/admin/chat', requireAdmin, async (req: Request, res: Response) =>
       `${idx + 1}. [${f.rating}⭐] "${f.review}" - ${f.aiSummary || 'No summary'}`
     ).join('\n');
 
+    const ratingBreakdown = stats.total > 0 ? {
+      5: ((stats.ratingDistribution[5] / stats.total) * 100).toFixed(0),
+      4: ((stats.ratingDistribution[4] / stats.total) * 100).toFixed(0),
+      3: ((stats.ratingDistribution[3] / stats.total) * 100).toFixed(0),
+      2: ((stats.ratingDistribution[2] / stats.total) * 100).toFixed(0),
+      1: ((stats.ratingDistribution[1] / stats.total) * 100).toFixed(0),
+    } : { 5: '0', 4: '0', 3: '0', 2: '0', 1: '0' };
+
     // Step 4: Build AI prompt with context
     const systemPrompt = `You are an expert business analyst and customer experience consultant. Provide comprehensive, detailed insights with actionable strategies.
 
@@ -814,11 +822,11 @@ Total: ${stats.total} reviews | Avg Rating: ${stats.avgRating}/5.0
 Positive: ${stats.positive} | Neutral: ${stats.neutral} | Negative: ${stats.negative}
 
 Rating Breakdown:
-⭐⭐⭐⭐⭐ ${stats.ratingDistribution[5]} (${((stats.ratingDistribution[5] / stats.total) * 100).toFixed(0)}%)
-⭐⭐⭐⭐ ${stats.ratingDistribution[4]} (${((stats.ratingDistribution[4] / stats.total) * 100).toFixed(0)}%)
-⭐⭐⭐ ${stats.ratingDistribution[3]} (${((stats.ratingDistribution[3] / stats.total) * 100).toFixed(0)}%)
-⭐⭐ ${stats.ratingDistribution[2]} (${((stats.ratingDistribution[2] / stats.total) * 100).toFixed(0)}%)
-⭐ ${stats.ratingDistribution[1]} (${((stats.ratingDistribution[1] / stats.total) * 100).toFixed(0)}%)
+⭐⭐⭐⭐⭐ ${stats.ratingDistribution[5]} (${ratingBreakdown[5]}%)
+⭐⭐⭐⭐ ${stats.ratingDistribution[4]} (${ratingBreakdown[4]}%)
+⭐⭐⭐ ${stats.ratingDistribution[3]} (${ratingBreakdown[3]}%)
+⭐⭐ ${stats.ratingDistribution[2]} (${ratingBreakdown[2]}%)
+⭐ ${stats.ratingDistribution[1]} (${ratingBreakdown[1]}%)
 
 RECENT FEEDBACK:
 ${feedbackContext}
