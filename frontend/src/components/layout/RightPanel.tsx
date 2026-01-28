@@ -3,6 +3,7 @@ import { Send, Loader2, Trash2, Sparkles, X, MessageCircle } from 'lucide-react'
 import { useEffect, useState, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from '../../config/api';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -155,11 +156,11 @@ export const RightPanel = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.aside
-            initial={{ x: 320 }}
+            initial={{ x: '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: 320 }}
+            exit={{ x: '100%' }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed right-0 top-0 w-80 h-screen bg-white border-l border-gray-200 flex flex-col shadow-2xl z-50"
+            className="fixed right-0 top-0 w-1/4 min-w-[350px] h-screen bg-white border-l border-gray-200 flex flex-col shadow-2xl z-50"
           >
             {/* Header */}
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
@@ -204,26 +205,54 @@ export const RightPanel = () => {
                     <div
                       className={`max-w-[85%] rounded-2xl px-4 py-3 ${message.role === 'user'
                         ? 'bg-black text-white'
-                        : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
+                        : 'bg-[#1a1a1c] border border-gray-800 text-white shadow-sm'
                         }`}
                     >
-                      {message.role === 'assistant' && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className="w-5 h-5 flex items-center justify-center">
-                            <img
-                              src="/ai-assistant-icon.png"
-                              alt="AI"
-                              className="w-full h-full object-contain"
-                            />
+                      {message.role === 'assistant' ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="w-5 h-5 flex items-center justify-center">
+                              <Sparkles size={14} className="text-purple-400" />
+                            </div>
+                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Assistant</span>
                           </div>
-                          <span className="text-xs font-semibold text-gray-600">Fynd AI</span>
+                          <div className="markdown-content">
+                            <ReactMarkdown
+                              components={{
+                                code({ node, inline, className, children, ...props }: any) {
+                                  return inline ? (
+                                    <code className="bg-[#312e2e] text-[#f28b82] px-1.5 py-0.5 rounded-md font-mono text-[11px]" {...props}>
+                                      {children}
+                                    </code>
+                                  ) : (
+                                    <pre className="bg-[#2d2d2d] p-3 rounded-lg overflow-x-auto my-2">
+                                      <code className="text-xs font-mono text-gray-300" {...props}>
+                                        {children}
+                                      </code>
+                                    </pre>
+                                  );
+                                },
+                                p: ({ children }) => <p className="text-sm leading-relaxed mb-3 last:mb-0 text-gray-100">{children}</p>,
+                                ul: ({ children }) => <ul className="list-disc ml-4 mb-3 space-y-2 text-gray-100">{children}</ul>,
+                                ol: ({ children }) => <ol className="list-decimal ml-4 mb-3 space-y-2 text-gray-100">{children}</ol>,
+                                li: ({ children }) => <li className="text-sm">{children}</li>,
+                                h1: ({ children }) => <h1 className="text-lg font-bold mb-3 text-white">{children}</h1>,
+                                h2: ({ children }) => <h2 className="text-base font-bold mb-2 text-white">{children}</h2>,
+                                h3: ({ children }) => <h3 className="text-sm font-bold mb-2 text-white">{children}</h3>,
+                                strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                              }}
+                            >
+                              {message.content}
+                            </ReactMarkdown>
+                          </div>
                         </div>
+                      ) : (
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                          {message.content}
+                        </p>
                       )}
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                        {message.content}
-                      </p>
                       <span
-                        className={`text-xs mt-2 block ${message.role === 'user' ? 'text-gray-300' : 'text-gray-400'
+                        className={`text-[10px] mt-2 block ${message.role === 'user' ? 'text-gray-400' : 'text-gray-500'
                           }`}
                       >
                         {formatTime(message.timestamp)}
